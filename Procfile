@@ -1,0 +1,1 @@
+worker: python levels_bot.py
