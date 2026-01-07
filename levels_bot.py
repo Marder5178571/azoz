@@ -21,16 +21,16 @@ from telegram.ext import (
 # =========================================================
 # НАСТРОЙКИ (ОБЯЗАТЕЛЬНО ЗАПОЛНИТЬ)
 # =========================================================
-BOT_TOKEN = "PASTE_YOUR_BOT_TOKEN_HERE"  # один токен прямо здесь
+BOT_TOKEN = "8355075682:AAELU8BHiV240FqyOB9H_-3KFqbxoMm-MAk"  # один токен прямо здесь
 
 # КАНАЛ:
 # ВАЖНО: ссылка вида https://t.me/+xxxx — это НЕ chat_id.
 # Нужен @username канала или числовой id -100xxxxxxxxxx
-CHANNEL_CHAT_ID = "@YOUR_CHANNEL_USERNAME"
-CHANNEL_URL = "https://t.me/+GrgQvGTWTM40NjMy"  # ссылка для кнопки на канал
+CHANNEL_CHAT_ID = -1003629048716
+CHANNEL_URL = "https://t.me/Pakhtakor_pro_challenge"  # ссылка для кнопки на канал
 
 # Владелец (OWNER): может добавлять/удалять админов
-OWNER_USER_ID = 123456789  # ваш user_id числом (узнать: /myid)
+OWNER_USER_ID = 1266601946  # ваш user_id числом (узнать: /myid)
 
 LEVELS = [1, 2, 3, 4]
 TASKS = [1, 2, 3]
@@ -1225,3 +1225,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
