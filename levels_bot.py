@@ -21,16 +21,16 @@ from telegram.ext import (
 # =========================================================
 # НАСТРОЙКИ (ОБЯЗАТЕЛЬНО ЗАПОЛНИТЬ)
 # =========================================================
-BOT_TOKEN = "8355075682:AAELU8BHiV240FqyOB9H_-3KFqbxoMm-MAk"  # один токен прямо здесь
+BOT_TOKEN = "PASTE_YOUR_BOT_TOKEN_HERE"  # один токен прямо здесь
 
 # КАНАЛ:
 # ВАЖНО: ссылка вида https://t.me/+xxxx — это НЕ chat_id.
 # Нужен @username канала или числовой id -100xxxxxxxxxx
-CHANNEL_CHAT_ID = -1003629048716
-CHANNEL_URL = "https://t.me/Pakhtakor_pro_challenge"  # ссылка для кнопки на канал
+CHANNEL_CHAT_ID = "@YOUR_CHANNEL_USERNAME"
+CHANNEL_URL = "https://t.me/+GrgQvGTWTM40NjMy"  # ссылка для кнопки на канал
 
-# Владелец (OWNER): может добавлять/удалять админов кнопками
-OWNER_USER_ID = 1266601946  # ваш user_id числом (узнать: /myid)
+# Владелец (OWNER): может добавлять/удалять админов
+OWNER_USER_ID = 123456789  # ваш user_id числом (узнать: /myid)
 
 LEVELS = [1, 2, 3, 4]
 TASKS = [1, 2, 3]
@@ -295,7 +295,13 @@ async def send_sticker_safe(context: ContextTypes.DEFAULT_TYPE, chat_id: int, ke
         logger.warning("Failed to send sticker (%s): %s", key, e)
 
 
-async def say(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str, reply_markup=None, sticker_key: str = "DEFAULT") -> None:
+async def say(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+    text: str,
+    reply_markup=None,
+    sticker_key: str = "DEFAULT",
+) -> None:
     if update.effective_chat:
         await send_sticker_safe(context, update.effective_chat.id, sticker_key)
     if update.message:
@@ -612,8 +618,10 @@ async def show_current_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 # =========================================================
 # START
+# ВАЖНО: теперь приветствие отправляется каждый раз при /start
 # =========================================================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    # сброс навигации
     panel_set(context, "player")
     player_level_set(context, None)
     player_task_set(context, None)
@@ -630,21 +638,30 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if saved_lang and "lang" not in context.user_data:
         set_lang(context, saved_lang)
 
-    # 1) Выбор языка
+    # 1) Язык ещё не выбран -> просим выбрать
     if "lang" not in context.user_data:
         set_awaiting_registration(context, False)
         await say(update, context, TXT["CHOOSE_LANG"]["ru"], reply_markup=kb_language(), sticker_key="WELCOME")
         return
 
-    # 2) Если не зарегистрирован — попросим регистрацию
+    # 2) Каждый раз при /start отправляем приветствие на выбранном языке
+    await say(
+        update,
+        context,
+        t(context, "GREET_AFTER_LANG"),
+        reply_markup=ReplyKeyboardRemove(),
+        sticker_key="WELCOME",
+    )
+
+    # 3) Если не зарегистрирован — просим регистрацию
     if not is_registered(user.id):
         set_awaiting_registration(context, True)
         await say(update, context, t(context, "ASK_REGISTER_NAME"), reply_markup=ReplyKeyboardRemove(), sticker_key="WELCOME")
         return
 
-    # 3) Обычный вход
+    # 4) Если зарегистрирован — показываем кнопку канала и меню
     set_awaiting_registration(context, False)
-    await say(update, context, "📣", reply_markup=channel_button(context), sticker_key="WELCOME")
+    await say(update, context, "📣", reply_markup=channel_button(context), sticker_key="OK")
 
     if is_admin(update):
         await say(update, context, t(context, "CHOOSE_PANEL_ADMIN"), reply_markup=kb_choose_panel(context, owner_user=is_owner(update)), sticker_key="PANEL")
@@ -879,7 +896,6 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         set_lang(context, "ru")
         set_saved_lang(user.id, "ru")
 
-        # Приветствие после выбора языка + регистрация
         await say(update, context, t(context, "GREET_AFTER_LANG"), reply_markup=ReplyKeyboardRemove(), sticker_key="WELCOME")
 
         if not is_registered(user.id):
